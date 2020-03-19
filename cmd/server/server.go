@@ -4,20 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"os"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
+
+	ps "github.com/sylba2050/pubsub"
 )
 
 func main() {
-	arguments := os.Args
-	if len(arguments) == 1 {
-		fmt.Println("Please provide port number")
-		return
-	}
-
-	PORT := ":" + arguments[1]
-	l, err := net.Listen("tcp", PORT)
+	l, err := net.Listen("tcp", fmt.Sprintf("%d", ps.Config.Port))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -26,9 +22,10 @@ func main() {
 
 	c, err := l.Accept()
 	if err != nil {
-		fmt.Println(err)
+		log.Error().Err(err).Send()
 		return
 	}
+	defer c.Close()
 
 	for {
 		netData, err := bufio.NewReader(c).ReadString('\n')
