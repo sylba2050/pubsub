@@ -6,19 +6,21 @@ import (
 	"net"
 	"os"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
 	arguments := os.Args
 	if len(arguments) == 1 {
-		fmt.Println("Please provide host:port.")
+		log.Fatal().Msg("Please provide host:port.")
 		return
 	}
 
 	CONNECT := arguments[1]
 	c, err := net.Dial("tcp", CONNECT)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal().Err(err).Send()
 		return
 	}
 
@@ -31,7 +33,7 @@ func main() {
 		message, _ := bufio.NewReader(c).ReadString('\n')
 		fmt.Print("->: " + message)
 		if strings.TrimSpace(string(text)) == "STOP" {
-			fmt.Println("TCP client exiting...")
+			log.Info().Msg("TCP client exiting...")
 			return
 		}
 	}

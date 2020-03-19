@@ -27,13 +27,17 @@ func init() {
 
 func parse() {
 	c := config{}
-
 	var err error
 
 	data, err := ioutil.ReadFile("./config.yaml")
+	log.Info().Msg(string(data))
+	if err != nil {
+		log.Fatal().Msg("Can't read configuration file")
+	}
 
 	err = yaml.Unmarshal(data, &c)
 	if err != nil {
 		log.Fatal().Msg("Can't parse configuration file")
 	}
+	Config = c
 }

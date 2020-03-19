@@ -12,35 +12,43 @@ import (
 	ps "github.com/sylba2050/pubsub"
 )
 
-func main() {
-	l, err := net.Listen("tcp", fmt.Sprintf("%d", ps.Config.Port))
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer l.Close()
-
-	c, err := l.Accept()
-	if err != nil {
-		log.Error().Err(err).Send()
-		return
-	}
+func handle(c net.Conn) {
 	defer c.Close()
 
 	for {
 		netData, err := bufio.NewReader(c).ReadString('\n')
 		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		if strings.TrimSpace(string(netData)) == "STOP" {
-			fmt.Println("Exiting TCP server!")
+			log.Error().Err(err).Send()
 			return
 		}
 
-		fmt.Print("-> ", string(netData))
-		t := time.Now()
-		myTime := t.Format(time.RFC3339) + "\n"
+		if strings.TrimSpace(netData) == "STOP" {
+			log.Info().Msg("close connection")
+			return
+		}
+
+		fmt.Print("-> ", netData)
+		myTime := time.Now().Format(time.RFC3339) + "\n"
 		c.Write([]byte(myTime))
+	}
+}
+
+func main() {
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", ps.Config.Port))
+	if err != nil {
+		log.Error().Err(err).Send()
+		return
+	}
+	defer l.Close()
+
+	for {
+		c, err := l.Accept()
+		log.Info().Msg("accept")
+		if err != nil {
+			log.Error().Err(err).Send()
+			return
+		}
+
+		go handle(c)
 	}
 }
