@@ -1,33 +1,45 @@
 package pubsub
 
-import "net"
+import (
+	"net"
+	"sync"
+)
+
+var m sync.Mutex
 
 // Registry is information registry
 type Registry struct {
 	topics map[string][]*Client
 }
 
-func (r *Registry) Publish(topicID string, message []byte) error {
-	payload := NewPublishPayload(message)
-	err := r.pub(topicID, payload)
-	return err
+// Publish pusblish data
+func (r *Registry) Publish(topicID string, data Data) {
+	r.pub(topicID, data)
 }
 
-func (r *Registry) pub(topicID string, payload Payload) error {
-
-	for _,  range r.topics[topicID] {
-		r.topics[topicID].c <- payload
-	}
+func (r *Registry) pub(topicID string, data Data) {
+	go func() {
+		for _, client := range r.topics[topicID] {
+			client.c <- data.BuildData()
+		}
+	}()
 }
 
-func (r *Registry) Subscribe(topicID, subscriberID string) {
+// Subscribe subscrib client
+func (r *Registry) Subscribe(topicID string, client *Client) {
+	m.Lock()
+	defer m.Unlock()
+
+	r.topics[topicID] = append(r.topics[topicID], client)
 }
 
+// Client has client's data
 type Client struct {
-	c    chan interface{}
+	c    chan []byte
 	conn net.Conn
 }
 
+// NewClient create new client data
 func NewClient(conn net.Conn) Client {
 	c := make(chan []byte, 0)
 	return Client{c: c, conn: conn}
