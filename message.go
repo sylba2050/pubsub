@@ -1,7 +1,7 @@
 package pubsub
 
 // MessageType is MessageType in header
-type MessageType int16
+type MessageType uint16
 
 const (
 	Connect                 MessageType = 0x0001
@@ -25,15 +25,8 @@ const (
 	CloseRequest            MessageType = 0x2000
 )
 
-type Payload struct {
-	id                string
-	t                 MessageType
-	receiverTimestamp int32
-	senderTimestamp   int32
-}
-
 // DataType is Data in header
-type DataType int16
+type DataType uint16
 
 const (
 	MessageBody  DataType = 0x4003
@@ -42,3 +35,66 @@ const (
 	TopicID      DataType = 0x4004
 	SubscriberID DataType = 0x4005
 )
+
+func NewData(h Header, p ...Payload) Data {
+	return Data{
+		header:  h,
+		payload: p,
+	}
+}
+
+type Data struct {
+	header  Header
+	payload []Payload
+}
+
+func (d *Data) BuildData() []byte {
+	headertype := uint16tobyte(uint16(d.header.typ))
+	senderTimestamp := uint32tobyte(d.header.senderTimestamp)
+	receiverTimestamp := uint32tobyte(d.header.receiverTimestamp)
+
+	var payload []byte
+	for _, p := range d.payload {
+		payload = append(payload, p.Bytes()...)
+	}
+
+	size := uint16tobyte(uint16(len(payload)) + HeaderSize)
+
+	// FIXME : 先にメモリ確保
+	var data []byte
+	data = append(data, headertype...)
+	data = append(data, size...)
+	data = append(data, senderTimestamp...)
+	data = append(data, receiverTimestamp...)
+	data = append(data, payload...)
+
+	return data
+}
+
+const HeaderSize = 8
+
+type Header struct {
+	typ               MessageType
+	size              uint16
+	receiverTimestamp uint32
+	senderTimestamp   uint32
+}
+
+type Payload struct {
+	typ   MessageType
+	size  uint16
+	value []byte
+}
+
+func (p *Payload) Bytes() []byte {
+	return append(uint16tobyte(uint16(p.typ)), append(uint16tobyte(p.size), p.value...)...)
+}
+
+func NewPublishPayload(message []byte) Payload {
+	// FIXME: uint16のサイズを越えていたらエラー
+	return Payload{
+		typ:   Publish,
+		size:  uint16(len(message)),
+		value: message,
+	}
+}

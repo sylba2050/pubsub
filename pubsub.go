@@ -4,23 +4,31 @@ import "net"
 
 // Registry is information registry
 type Registry struct {
-	// map[topicID]clientID
-	topics map[string]string
-
-	// map[clientID]subscribers
-	clients map[string]Client
+	topics map[string][]*Client
 }
 
-func (r *Registry) Publish(topicID string, payload Payload) {
+func (r *Registry) Publish(topicID string, message []byte) error {
+	payload := NewPublishPayload(message)
+	err := r.pub(topicID, payload)
+	return err
+}
+
+func (r *Registry) pub(topicID string, payload Payload) error {
+
+	for _,  range r.topics[topicID] {
+		r.topics[topicID].c <- payload
+	}
 }
 
 func (r *Registry) Subscribe(topicID, subscriberID string) {
 }
 
 type Client struct {
-	id   string
 	c    chan interface{}
 	conn net.Conn
 }
 
-type NewClient struct{}
+func NewClient(conn net.Conn) Client {
+	c := make(chan []byte, 0)
+	return Client{c: c, conn: conn}
+}
