@@ -60,8 +60,7 @@ func (d *Data) BuildData() []byte {
 
 	size := uint16tobyte(uint16(len(payload)) + HeaderSize)
 
-	// FIXME : 先にメモリ確保
-	var data []byte
+	data := make([]byte, 0, len(headertype)+len(size)+len(senderTimestamp)+len(receiverTimestamp)+len(payload))
 	data = append(data, headertype...)
 	data = append(data, size...)
 	data = append(data, senderTimestamp...)
