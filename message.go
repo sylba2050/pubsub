@@ -36,7 +36,7 @@ type Payload struct {
 type DataType int16
 
 const (
-	Message      DataType = 0x4003
+	MessageBody  DataType = 0x4003
 	ConnectToken DataType = 0x4001
 	MessageID    DataType = 0x4002
 	TopicID      DataType = 0x4004
