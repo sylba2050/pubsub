@@ -3,7 +3,7 @@
 ## Message Type
 
 | Name | Value | Description |  
-| --- | --- | --- | --- |
+| --- | --- | --- | 
 | Connect | 0x00001 | request for confirmation of connection authority |
 | Connect Ack Succcess | 0x00001 | connection permission confirmation successful |
 | Connect Ack Failed | 0x00001 | connection permission confirmation failed |
@@ -28,7 +28,7 @@
 ## Data Type
 
 | Name | value | Description | 
-| --- | --- | --- | --- |
+| --- | --- | --- |
 | Connect token | 0x00001 | request for confirmation of connection authority |
 | Message ID | 0x00001 | request for confirmation of connection authority |
 | Message | 0x00001 | request for confirmation of connection authority |
