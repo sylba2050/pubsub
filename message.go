@@ -71,6 +71,7 @@ func (d *Data) BuildData() []byte {
 }
 
 const HeaderSize = 8
+const PayloadHeaderSize = 4
 
 type Header struct {
 	typ               MessageType
@@ -93,7 +94,7 @@ func NewPublishPayload(message []byte) Payload {
 	// FIXME: uint16のサイズを越えていたらエラー
 	return Payload{
 		typ:   Publish,
-		size:  uint16(len(message)),
+		size:  uint16(len(message) + PayloadHeaderSize),
 		value: message,
 	}
 }
