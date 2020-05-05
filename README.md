@@ -7,6 +7,9 @@
 * messageのlengthにはpayloadの長さが入る(bit)
 * payloadのlengthにはdataのlengthに長さが入る(bit)
 * dataは画像上は32bitだが実際は可変長
+* ひとつのdata type に対してひとつの値がはいる(例えばsubscribers listを取得した場合, payloadにはsubscriber ID, length, dataがsubscriberの数だけ入る)
+* サーバー側は内部的にクライアントのIDを保持(UUID?)
+  * クライアントはそれを知るすべは今のところない
 
 ## Message Type
 
@@ -26,14 +29,16 @@
 | PublishPermissionError           | 0x0042 | publish failed |
 | Ping                             | 0x0060 | ping |
 | Pong                             | 0x0061 | pong |
-| AddSubscriber                    | 0x0100 | add subscriber |
+| AddSubscriber ※                  | 0x0100 | add subscriber |
 | AddSubscriberPermissionError     | 0x0101 | add subscriber failed |
-| RemoveSubscriber                 | 0x0102 | remove subscriber request |
+| RemoveSubscriber ※               | 0x0102 | remove subscriber request |
 | RemoveSubscriberPermissionError  | 0x0103 | remove subscriber failed |
-| GetSubscribersRequest            | 0x1000 | subscribers list request |
+| GetSubscribersRequest ※          | 0x1000 | subscribers list request |
 | GetSubscribersPermissionError    | 0x1001 | get subscribers list failed |
 | SubscribersList                  | 0x1002 | return subscribers list |
-| CloseRequest                     | 0x2000 | close topic request (all subscribers will be unsubscribe) |
+| CloseRequest ※                   | 0x2000 | close topic request (all subscribers will be unsubscribe) |
+
+※ 要管理者権限
 
 ## Data Type
 
