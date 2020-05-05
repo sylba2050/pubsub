@@ -10,6 +10,7 @@
 * ひとつのdata type に対してひとつの値がはいる(例えばsubscribers listを取得した場合, payloadにはsubscriber ID, length, dataがsubscriberの数だけ入る)
 * サーバー側は内部的にクライアントのIDを保持(UUID?)
   * クライアントはそれを知るすべは今のところない
+* dataにはほぼ確実にMessage ID(data type), length, data(message ID)が入る
 
 ## Message Type
 
