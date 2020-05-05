@@ -13,14 +13,18 @@ type Registry struct {
 }
 
 // Publish pusblish data
-func (r *Registry) Publish(topicID string, data Data) {
-	r.pub(topicID, data)
+func (r *Registry) Publish(topicID string, message Message) {
+	r.pub(topicID, message)
 }
 
-func (r *Registry) pub(topicID string, data Data) {
+func (r *Registry) pub(topicID string, message Message) {
 	go func() {
 		for _, client := range r.topics[topicID] {
-			client.c <- data.BuildData()
+			m, err := message.Tobytes()
+			if err != nil {
+				return
+			}
+			client.c <- m
 		}
 	}()
 }

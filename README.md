@@ -13,13 +13,14 @@
 
 ## Message Type
 
-| Name | Value | Description |  
- --- | --- | --- | 
+| Name | Value | Description |
+| --- | --- | --- | 
 | Connect                          | 0x0001 | request for confirmation of connection authority |
 | ConnectAckSuccess                | 0x0002 | connection permission confirmation successful    |
 | ConnectAckFailure                | 0x0003 | connection permission confirmation failed        |
 | ReconnectRequest                 | 0x0004 | reconnect request |
 | Disconnect                       | 0x0005 | disconnect request |
+| CreateNewTopicRequest            | 0x0010 | create new topic request|
 | Subscribe                        | 0x0020 | subscribe request |
 | UnSubscribe                      | 0x0021 | unsubscribe request |
 | SubscribeAckSuccess              | 0x0022 | subscription successful |

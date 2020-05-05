@@ -1,103 +1,42 @@
 package pubsub
 
-// MessageType is MessageType in header
-type MessageType uint16
-
-const (
-	Connect                         MessageType = 0x0001
-	ConnectAckSuccess               MessageType = 0x0002
-	ConnectAckFailure               MessageType = 0x0003
-	ReconnectRequest                MessageType = 0x0004
-	Disconnect                      MessageType = 0x0005
-	Subscribe                       MessageType = 0x0020
-	UnSubscribe                     MessageType = 0x0021
-	SubscribeAckSuccess             MessageType = 0x0022
-	SubscribePermisionError         MessageType = 0x0023
-	Publish                         MessageType = 0x0040
-	PublishAckSuccess               MessageType = 0x0041
-	PublishPermissionError          MessageType = 0x0042
-	Ping                            MessageType = 0x0060
-	Pong                            MessageType = 0x0061
-	AddSubscriber                   MessageType = 0x0100
-	AddSubscriberPermissionError    MessageType = 0x0101
-	RemoveSubscriber                MessageType = 0x0102
-	RemoveSubscriberPermissionError MessageType = 0x0103
-	GetSubscribersRequest           MessageType = 0x1000
-	GetSubscribersPermissionError   MessageType = 0x1001
-	SubscribersList                 MessageType = 0x1002
-	CloseRequest                    MessageType = 0x2000
-)
-
-// DataType is Data in header
-type DataType uint16
-
-const (
-	MessageBody  DataType = 0x4003
-	ConnectToken DataType = 0x4001
-	MessageID    DataType = 0x4002
-	TopicID      DataType = 0x4004
-	SubscriberID DataType = 0x4005
-)
-
-func NewData(h Header, p ...Payload) Data {
-	return Data{
-		header:  h,
-		payload: p,
+func NewMessage(h Header, p ...Payload) M {
+	return M{
+		header:   h,
+		payloads: p,
 	}
 }
 
-type Data struct {
-	header  Header
-	payload []Payload
+type Message interface {
+	Tobytes() ([]byte, error)
 }
 
-func (d *Data) BuildData() []byte {
-	headertype := uint16tobyte(uint16(d.header.typ))
-	senderTimestamp := uint32tobyte(d.header.senderTimestamp)
-	receiverTimestamp := uint32tobyte(d.header.receiverTimestamp)
+type M struct {
+	header   Header
+	payloads []Payload
+}
 
-	var payload []byte
-	for _, p := range d.payload {
-		payload = append(payload, p.Bytes()...)
+func (m *M) ToBytes() ([]byte, error) {
+	var payloadBytes []byte
+	for _, payload := range m.payloads {
+		p, err := payload.ToBytes()
+		if err != nil {
+			return nil, err
+		}
+		payloadBytes = append(payloadBytes, p...)
 	}
 
-	size := uint16tobyte(uint16(len(payload)) + HeaderSize)
+	messageLength := uint16(len(payloadBytes))
+	m.header.SetLength(messageLength)
 
-	data := make([]byte, 0, len(headertype)+len(size)+len(senderTimestamp)+len(receiverTimestamp)+len(payload))
-	data = append(data, headertype...)
-	data = append(data, size...)
-	data = append(data, senderTimestamp...)
-	data = append(data, receiverTimestamp...)
-	data = append(data, payload...)
+	var message []byte
 
-	return data
-}
-
-const HeaderSize = 8
-const PayloadHeaderSize = 4
-
-type Header struct {
-	typ               MessageType
-	size              uint16
-	receiverTimestamp uint32
-	senderTimestamp   uint32
-}
-
-type Payload struct {
-	typ   MessageType
-	size  uint16
-	value []byte
-}
-
-func (p *Payload) Bytes() []byte {
-	return append(uint16tobyte(uint16(p.typ)), append(uint16tobyte(p.size), p.value...)...)
-}
-
-func NewPublishPayload(message []byte) Payload {
-	// FIXME: uint16のサイズを越えていたらエラー
-	return Payload{
-		typ:   Publish,
-		size:  uint16(len(message) + PayloadHeaderSize),
-		value: message,
+	header, err := m.header.ToBytes()
+	if err != nil {
+		return nil, err
 	}
+	message = append(message, header...)
+	message = append(message, payloadBytes...)
+
+	return message, nil
 }
