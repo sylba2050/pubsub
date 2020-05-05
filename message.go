@@ -4,25 +4,28 @@ package pubsub
 type MessageType uint16
 
 const (
-	Connect                 MessageType = 0x0001
-	ConnectAckSuccess       MessageType = 0x0002
-	ConnectAckFailure       MessageType = 0x0003
-	ReconnectRequest        MessageType = 0x0004
-	Disconnect              MessageType = 0x0005
-	Subscribe               MessageType = 0x0020
-	UnSubscribe             MessageType = 0x0021
-	SubscribeAckSuccess     MessageType = 0x0022
-	SubscribePermisionError MessageType = 0x0023
-	Publish                 MessageType = 0x0040
-	PublishAckSuccess       MessageType = 0x0041
-	PublishPermissionError  MessageType = 0x0042
-	Ping                    MessageType = 0x0060
-	Pong                    MessageType = 0x0061
-	AddSubscriber           MessageType = 0x0100
-	RemoveSubscriber        MessageType = 0x0101
-	GetSubscribersRequest   MessageType = 0x1000
-	SubscribersList         MessageType = 0x1001
-	CloseRequest            MessageType = 0x2000
+	Connect                         MessageType = 0x0001
+	ConnectAckSuccess               MessageType = 0x0002
+	ConnectAckFailure               MessageType = 0x0003
+	ReconnectRequest                MessageType = 0x0004
+	Disconnect                      MessageType = 0x0005
+	Subscribe                       MessageType = 0x0020
+	UnSubscribe                     MessageType = 0x0021
+	SubscribeAckSuccess             MessageType = 0x0022
+	SubscribePermisionError         MessageType = 0x0023
+	Publish                         MessageType = 0x0040
+	PublishAckSuccess               MessageType = 0x0041
+	PublishPermissionError          MessageType = 0x0042
+	Ping                            MessageType = 0x0060
+	Pong                            MessageType = 0x0061
+	AddSubscriber                   MessageType = 0x0100
+	AddSubscriberPermissionError    MessageType = 0x0101
+	RemoveSubscriber                MessageType = 0x0102
+	RemoveSubscriberPermissionError MessageType = 0x0103
+	GetSubscribersRequest           MessageType = 0x1000
+	GetSubscribersPermissionError   MessageType = 0x1001
+	SubscribersList                 MessageType = 0x1002
+	CloseRequest                    MessageType = 0x2000
 )
 
 // DataType is Data in header
