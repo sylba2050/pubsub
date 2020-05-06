@@ -10,6 +10,7 @@ var m sync.Mutex
 type Registry interface {
 	Subscribe(string, *Client) error
 	Publish(string, Message) error
+	NewTopic() (string, error)
 }
 
 // R has topic list and subscribing client list
@@ -44,4 +45,16 @@ func (r *R) Subscribe(topicID string, client *Client) error {
 
 	r.topics[topicID][clientID] = client
 	return nil
+}
+
+func (r *R) NewTopic() (string, error) {
+	id := NewID()
+	// TODO 衝突回避
+	r.topics[id] = make(map[string]*Client)
+	return id, nil
+}
+
+func NewRegistory() R {
+	var topics = map[string]map[string]*Client{}
+	return R{topics: topics}
 }
