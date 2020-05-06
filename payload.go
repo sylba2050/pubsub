@@ -24,17 +24,17 @@ type Payload interface {
 }
 
 type P struct {
-	typ    MessageType
+	typ    DataType
 	length uint16
 	value  []byte
 }
 
-func (p *P) SetType(m MessageType) error {
+func (p *P) SetType(m DataType) error {
 	p.typ = m
 	return nil
 }
 
-func (p P) GetType() (MessageType, error) {
+func (p P) GetType() (DataType, error) {
 	return p.typ, nil
 }
 
@@ -55,4 +55,8 @@ func (p *P) ToBytes() ([]byte, error) {
 	bytes = append(bytes, p.value...)
 
 	return bytes, nil
+}
+
+func NewPayload(d DataType) (P, error) {
+	return P{typ: d}, nil
 }

@@ -96,3 +96,7 @@ func (h *H) ToBytes() ([]byte, error) {
 
 	return bytes, nil
 }
+
+func NewHeader(m MessageType) (H, error) {
+	return H{typ: m}, nil
+}
