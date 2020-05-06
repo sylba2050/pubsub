@@ -30,21 +30,29 @@ type P struct {
 }
 
 func (p *P) SetType(m MessageType) error {
+	p.typ = m
 	return nil
 }
 
 func (p P) GetType() (MessageType, error) {
-	return 0x0000, nil
+	return p.typ, nil
 }
 
 func (p *P) SetLength(length uint16) error {
+	p.length = length
 	return nil
 }
 
 func (p P) GetLength() (uint16, error) {
-	return 0, nil
+	return p.length, nil
 }
 
 func (p *P) ToBytes() ([]byte, error) {
-	return nil, nil
+	var bytes []byte
+
+	bytes = append(bytes, uint16tobyte(uint16(p.typ))...)
+	bytes = append(bytes, uint16tobyte(p.length)...)
+	bytes = append(bytes, p.value...)
+
+	return bytes, nil
 }

@@ -51,37 +51,48 @@ type H struct {
 }
 
 func (h *H) SetType(m MessageType) error {
+	h.typ = m
 	return nil
 }
 
 func (h H) GetType() (MessageType, error) {
-	return 0x0000, nil
+	return h.typ, nil
 }
 
 func (h *H) SetLength(length uint16) error {
+	h.length = length
 	return nil
 }
 
 func (h H) GetLength() (uint16, error) {
-	return 0, nil
+	return h.length, nil
 }
 
 func (h *H) SetSenderTimestamp(timestamp uint32) error {
+	h.senderTimestamp = timestamp
 	return nil
 }
 
 func (h H) GetSenderTimestamp() (uint32, error) {
-	return 0, nil
+	return h.senderTimestamp, nil
 }
 
 func (h *H) SetReceiverTimestamp(timestamp uint32) error {
+	h.receiverTimestamp = timestamp
 	return nil
 }
 
 func (h H) GetReceiverTimestamp() (uint32, error) {
-	return 0, nil
+	return h.receiverTimestamp, nil
 }
 
 func (h *H) ToBytes() ([]byte, error) {
-	return nil, nil
+	var bytes []byte
+
+	bytes = append(bytes, uint16tobyte(uint16(h.typ))...)
+	bytes = append(bytes, uint16tobyte(h.length)...)
+	bytes = append(bytes, uint32tobyte(h.senderTimestamp)...)
+	bytes = append(bytes, uint32tobyte(h.receiverTimestamp)...)
+
+	return bytes, nil
 }
