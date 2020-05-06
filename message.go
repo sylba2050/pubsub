@@ -9,6 +9,7 @@ func NewMessage(h Header, p ...Payload) M {
 
 type Message interface {
 	Tobytes() ([]byte, error)
+	AppendPayloads(...Payload) error
 }
 
 type M struct {
@@ -39,4 +40,11 @@ func (m *M) ToBytes() ([]byte, error) {
 	message = append(message, payloadBytes...)
 
 	return message, nil
+}
+
+func (m *M) AppendPayloads(payloads ...Payload) error {
+	for _, payload := range payloads {
+		m.payloads = append(m.payloads, payload)
+	}
+	return nil
 }
