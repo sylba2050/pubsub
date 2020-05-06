@@ -4,15 +4,43 @@ import (
 	"net"
 )
 
-// Client has client's data
-type Client struct {
-	id   string
-	c    chan []byte
-	conn net.Conn
+type Client interface {
+	GetID() (string, error)
+	ReceiveMessage(Message) error
+	Listen() error
+}
+
+// C has client's data
+type C struct {
+	id             string
+	messageChannel chan []byte
+	conn           net.Conn
+}
+
+func (c C) GetID() (string, error) {
+	return c.id, nil
+}
+
+func (c *C) ReceiveMessage(m Message) error {
+	message, err := m.Tobytes()
+	if err != nil {
+		return err
+	}
+	c.messageChannel <- message
+	return nil
+}
+
+func (c *C) Listen() error {
+	go func() {
+		for message := range c.messageChannel {
+			c.conn.Write(message)
+		}
+	}()
+	return nil
 }
 
 // NewClient create new client data
-func NewClient(conn net.Conn) Client {
+func NewClient(conn net.Conn) C {
 	c := make(chan []byte, 0)
-	return Client{c: c, conn: conn}
+	return C{messageChannel: c, conn: conn}
 }
