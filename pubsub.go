@@ -1,23 +1,29 @@
 package pubsub
 
 import (
-	"net"
 	"sync"
 )
 
 var m sync.Mutex
 
 // Registry is information registry
-type Registry struct {
-	topics map[string][]*Client
+type Registry interface {
+	Subscribe(string, *Client)
+	Publish(string, Message)
+}
+
+// R has topic list and subscribing client list
+type R struct {
+	// map[topic_id]map[client_id]*Client
+	topics map[string]map[string]*Client
 }
 
 // Publish pusblish data
-func (r *Registry) Publish(topicID string, message Message) {
+func (r *R) Publish(topicID string, message Message) {
 	r.pub(topicID, message)
 }
 
-func (r *Registry) pub(topicID string, message Message) {
+func (r *R) pub(topicID string, message Message) {
 	go func() {
 		for _, client := range r.topics[topicID] {
 			m, err := message.Tobytes()
@@ -30,21 +36,10 @@ func (r *Registry) pub(topicID string, message Message) {
 }
 
 // Subscribe subscrib client
-func (r *Registry) Subscribe(topicID string, client *Client) {
+func (r *R) Subscribe(topicID string, client *Client) {
 	m.Lock()
 	defer m.Unlock()
 
-	r.topics[topicID] = append(r.topics[topicID], client)
+	r.topics[topicID][client.id] = client
 }
 
-// Client has client's data
-type Client struct {
-	c    chan []byte
-	conn net.Conn
-}
-
-// NewClient create new client data
-func NewClient(conn net.Conn) Client {
-	c := make(chan []byte, 0)
-	return Client{c: c, conn: conn}
-}
