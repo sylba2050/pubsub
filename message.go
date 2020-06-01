@@ -1,14 +1,14 @@
 package pubsub
 
-func NewMessage(h Header, p ...Payload) M {
-	return M{
+func NewMessage(h Header, p ...Payload) Message {
+	return &M{
 		header:   h,
 		payloads: p,
 	}
 }
 
 type Message interface {
-	Tobytes() ([]byte, error)
+	ToBytes() ([]byte, error)
 	AppendPayloads(...Payload) error
 }
 

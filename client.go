@@ -22,7 +22,7 @@ func (c C) GetID() (string, error) {
 }
 
 func (c *C) ReceiveMessage(m Message) error {
-	message, err := m.Tobytes()
+	message, err := m.ToBytes()
 	if err != nil {
 		return err
 	}

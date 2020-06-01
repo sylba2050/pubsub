@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog/log"
+	ps "github.com/sylba2050/pubsub"
 )
 
 func main() {
@@ -27,11 +28,27 @@ func main() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print(">> ")
-		text, _ := reader.ReadString('\n')
-		fmt.Fprintf(c, text+"\n")
+		text, _ := reader.ReadBytes('\n')
 
-		message, _ := bufio.NewReader(c).ReadString('\n')
-		fmt.Print("->: " + message)
+		payload, _ := ps.NewPayload(ps.MessageBody)
+		payload.SetLength(uint16(len(text)))
+		payload.SetValue(text)
+		dataLength, _ := payload.GetLength()
+
+		header, _ := ps.NewHeader(ps.Publish)
+		// NewMessageを改造して自動でheaderにlengthが設定されるように
+		header.SetLength(dataLength + ps.PayloadHeaderSize)
+		header.SetReceiverTimestamp(1)
+		header.SetSenderTimestamp(1)
+
+		message := ps.NewMessage(header, payload)
+		fmt.Printf("%+v\n", payload)
+		fmt.Printf("%+v\n", header)
+		b, _ := message.ToBytes()
+		fmt.Fprintf(c, string(b))
+
+		receive, _ := bufio.NewReader(c).ReadString('\n')
+		fmt.Print("->: " + receive)
 		if strings.TrimSpace(string(text)) == "STOP" {
 			log.Info().Msg("TCP client exiting...")
 			return

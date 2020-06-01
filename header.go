@@ -1,11 +1,31 @@
 package pubsub
 
+import (
+	"errors"
+	"fmt"
+	"net"
+
+	"github.com/rs/zerolog/log"
+)
+
 // MessageType is MessageType in header
 type MessageType uint16
 
-const HeaderSize = 8
+func NewMessageType(input uint16) MessageType {
+	return MessageType(input)
+}
+
+func NewMessageTypeFromByte(input []byte) (MessageType, error) {
+	if len(input) != 2 {
+		return NoneMessageType, errors.New("Can't parse byte to header")
+	}
+	return NewMessageType(byte2uint16(input)), nil
+}
+
+const HeaderSize = 12
 
 const (
+	NoneMessageType                 MessageType = 0x0000
 	Connect                         MessageType = 0x0001
 	ConnectAckSuccess               MessageType = 0x0002
 	ConnectAckFailure               MessageType = 0x0003
@@ -97,6 +117,28 @@ func (h *H) ToBytes() ([]byte, error) {
 	return bytes, nil
 }
 
-func NewHeader(m MessageType) (H, error) {
-	return H{typ: m}, nil
+func NewHeader(m MessageType) (Header, error) {
+	return &H{typ: m}, nil
+}
+
+func ReadHeader(conn net.Conn) (Header, error) {
+	buf := make([]byte, HeaderSize)
+	n, err := conn.Read(buf)
+	if n < HeaderSize {
+		err := errors.New("Can't read header")
+		log.Error().Err(err).Send()
+		return &H{}, err
+	}
+	if err != nil {
+		fmt.Printf("Header read error: %s\n", err)
+	}
+
+	messageType, err := NewMessageTypeFromByte(buf[:2])
+
+	header, err := NewHeader(messageType)
+	header.SetLength(byte2uint16(buf[2:4]))
+	header.SetSenderTimestamp(byte2uint32(buf[4:8]))
+	header.SetReceiverTimestamp(byte2uint32(buf[8:12]))
+
+	return header, nil
 }

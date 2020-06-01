@@ -16,10 +16,10 @@ func uint32tobyte(input uint32) []byte {
 	return bs
 }
 
-func bytetouint16(input []byte) uint16 {
+func byte2uint16(input []byte) uint16 {
 	return binary.LittleEndian.Uint16(input)
 }
 
-func bytetouint32(input []byte) uint32 {
+func byte2uint32(input []byte) uint32 {
 	return binary.LittleEndian.Uint32(input)
 }
