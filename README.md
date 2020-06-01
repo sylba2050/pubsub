@@ -4,8 +4,8 @@
 
 ![](https://user-images.githubusercontent.com/20987269/81062231-93ca9f80-8f10-11ea-9a17-4bd44b8e6aec.jpg)
 
-* messageのlengthにはpayloadの長さが入る(bit)
-* payloadのlengthにはdataのlengthに長さが入る(bit)
+* messageのlengthにはpayloadの長さが入る(byte)
+* payloadのlengthにはdataのlengthに長さが入る(byte)
 * dataは画像上は32bitだが実際は可変長
 * ひとつのdata type に対してひとつの値がはいる(例えばsubscribers listを取得した場合, payloadにはsubscriber ID, length, dataがsubscriberの数だけ入る)
 * サーバー側は内部的にクライアントのIDを保持(UUID?)
