@@ -43,40 +43,40 @@ type Payload interface {
 	ToBytes() ([]byte, error)
 }
 
-type P struct {
+type payload struct {
 	typ    DataType
 	length uint16
 	value  []byte
 }
 
-func (p *P) SetType(m DataType) error {
+func (p *payload) SetType(m DataType) error {
 	p.typ = m
 	return nil
 }
 
-func (p P) GetType() (DataType, error) {
+func (p payload) GetType() (DataType, error) {
 	return p.typ, nil
 }
 
-func (p *P) SetLength(length uint16) error {
+func (p *payload) SetLength(length uint16) error {
 	p.length = length
 	return nil
 }
 
-func (p P) GetLength() (uint16, error) {
+func (p payload) GetLength() (uint16, error) {
 	return p.length, nil
 }
 
-func (p *P) SetValue(value []byte) error {
+func (p *payload) SetValue(value []byte) error {
 	p.value = value
 	return nil
 }
 
-func (p P) GetValue() ([]byte, error) {
+func (p payload) GetValue() ([]byte, error) {
 	return p.value, nil
 }
 
-func (p *P) ToBytes() ([]byte, error) {
+func (p *payload) ToBytes() ([]byte, error) {
 	var bytes []byte
 
 	bytes = append(bytes, uint16tobyte(uint16(p.typ))...)
@@ -87,7 +87,7 @@ func (p *P) ToBytes() ([]byte, error) {
 }
 
 func NewPayload(d DataType) (Payload, error) {
-	return &P{typ: d}, nil
+	return &payload{typ: d}, nil
 }
 
 func readPayloadHeaderFromConn(conn net.Conn) (Payload, error) {
@@ -96,7 +96,7 @@ func readPayloadHeaderFromConn(conn net.Conn) (Payload, error) {
 	if n < PayloadHeaderSize {
 		err := errors.New("Can't read payload header")
 		log.Error().Err(err).Send()
-		return &P{}, err
+		return &payload{}, err
 	}
 	if err != nil {
 		fmt.Printf("Payload header read error: %s\n", err)
@@ -104,16 +104,16 @@ func readPayloadHeaderFromConn(conn net.Conn) (Payload, error) {
 
 	dataType, err := NewDataTypeFromByte(buf[:2])
 
-	payload, err := NewPayload(dataType)
-	payload.SetLength(byte2uint16(buf[2:4]))
+	p, err := NewPayload(dataType)
+	p.SetLength(byte2uint16(buf[2:4]))
 
-	return payload, nil
+	return p, nil
 }
 
-func readPayloadDataFromConn(conn net.Conn, payload Payload) (Payload, error) {
-	dataLength, err := payload.GetLength()
+func readPayloadDataFromConn(conn net.Conn, p Payload) (Payload, error) {
+	dataLength, err := p.GetLength()
 	if dataLength == 0 {
-		return &P{}, errors.New("payload data length must not be 0")
+		return &payload{}, errors.New("payload data length must not be 0")
 	}
 
 	buf := make([]byte, dataLength)
@@ -121,26 +121,26 @@ func readPayloadDataFromConn(conn net.Conn, payload Payload) (Payload, error) {
 	if n < int(dataLength) {
 		err := errors.New("Can't read payload data")
 		log.Error().Err(err).Send()
-		return &P{}, err
+		return &payload{}, err
 	}
 	if err != nil {
 		fmt.Printf("Payload data read error: %s\n", err)
 	}
 
-	payload.SetValue(buf)
+	p.SetValue(buf)
 
-	return payload, nil
+	return p, nil
 }
 
 func ReadPayload(conn net.Conn) (Payload, error) {
-	payload, err := readPayloadHeaderFromConn(conn)
+	p, err := readPayloadHeaderFromConn(conn)
 	if err != nil {
-		return &P{}, err
+		return &payload{}, err
 	}
 
-	payload, err = readPayloadDataFromConn(conn, payload)
+	p, err = readPayloadDataFromConn(conn, p)
 	if err != nil {
-		return &P{}, err
+		return &payload{}, err
 	}
-	return payload, nil
+	return p, nil
 }

@@ -63,50 +63,50 @@ type Header interface {
 	ToBytes() ([]byte, error)
 }
 
-type H struct {
+type header struct {
 	typ               MessageType
 	length            uint16
 	senderTimestamp   uint32
 	receiverTimestamp uint32
 }
 
-func (h *H) SetType(m MessageType) error {
+func (h *header) SetType(m MessageType) error {
 	h.typ = m
 	return nil
 }
 
-func (h H) GetType() (MessageType, error) {
+func (h header) GetType() (MessageType, error) {
 	return h.typ, nil
 }
 
-func (h *H) SetLength(length uint16) error {
+func (h *header) SetLength(length uint16) error {
 	h.length = length
 	return nil
 }
 
-func (h H) GetLength() (uint16, error) {
+func (h header) GetLength() (uint16, error) {
 	return h.length, nil
 }
 
-func (h *H) SetSenderTimestamp(timestamp uint32) error {
+func (h *header) SetSenderTimestamp(timestamp uint32) error {
 	h.senderTimestamp = timestamp
 	return nil
 }
 
-func (h H) GetSenderTimestamp() (uint32, error) {
+func (h header) GetSenderTimestamp() (uint32, error) {
 	return h.senderTimestamp, nil
 }
 
-func (h *H) SetReceiverTimestamp(timestamp uint32) error {
+func (h *header) SetReceiverTimestamp(timestamp uint32) error {
 	h.receiverTimestamp = timestamp
 	return nil
 }
 
-func (h H) GetReceiverTimestamp() (uint32, error) {
+func (h header) GetReceiverTimestamp() (uint32, error) {
 	return h.receiverTimestamp, nil
 }
 
-func (h *H) ToBytes() ([]byte, error) {
+func (h *header) ToBytes() ([]byte, error) {
 	var bytes []byte
 
 	bytes = append(bytes, uint16tobyte(uint16(h.typ))...)
@@ -118,7 +118,7 @@ func (h *H) ToBytes() ([]byte, error) {
 }
 
 func NewHeader(m MessageType) (Header, error) {
-	return &H{typ: m}, nil
+	return &header{typ: m}, nil
 }
 
 func ReadHeader(conn net.Conn) (Header, error) {
@@ -127,7 +127,7 @@ func ReadHeader(conn net.Conn) (Header, error) {
 	if n < HeaderSize {
 		err := errors.New("Can't read header")
 		log.Error().Err(err).Send()
-		return &H{}, err
+		return &header{}, err
 	}
 	if err != nil {
 		fmt.Printf("Header read error: %s\n", err)
@@ -135,10 +135,10 @@ func ReadHeader(conn net.Conn) (Header, error) {
 
 	messageType, err := NewMessageTypeFromByte(buf[:2])
 
-	header, err := NewHeader(messageType)
-	header.SetLength(byte2uint16(buf[2:4]))
-	header.SetSenderTimestamp(byte2uint32(buf[4:8]))
-	header.SetReceiverTimestamp(byte2uint32(buf[8:12]))
+	h, err := NewHeader(messageType)
+	h.SetLength(byte2uint16(buf[2:4]))
+	h.SetSenderTimestamp(byte2uint32(buf[4:8]))
+	h.SetReceiverTimestamp(byte2uint32(buf[8:12]))
 
-	return header, nil
+	return h, nil
 }

@@ -1,7 +1,7 @@
 package pubsub
 
 func NewMessage(h Header, p ...Payload) Message {
-	return &M{
+	return &message{
 		header:   h,
 		payloads: p,
 	}
@@ -12,12 +12,12 @@ type Message interface {
 	AppendPayloads(...Payload) error
 }
 
-type M struct {
+type message struct {
 	header   Header
 	payloads []Payload
 }
 
-func (m *M) ToBytes() ([]byte, error) {
+func (m *message) ToBytes() ([]byte, error) {
 	var payloadBytes []byte
 	for _, payload := range m.payloads {
 		p, err := payload.ToBytes()
@@ -42,7 +42,7 @@ func (m *M) ToBytes() ([]byte, error) {
 	return message, nil
 }
 
-func (m *M) AppendPayloads(payloads ...Payload) error {
+func (m *message) AppendPayloads(payloads ...Payload) error {
 	for _, payload := range payloads {
 		m.payloads = append(m.payloads, payload)
 	}
